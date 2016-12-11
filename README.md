@@ -571,12 +571,67 @@ private:
     StringSingleton(const StringSingleton &old);
     const StringSingleton &operator=(const StringSingleton &old);
     //某些编译器可能未实现私有析构，但是这种析构可以阻止删除这个唯一实例（当我们规定类只能在堆上分配内存时）。
-    //补充：当析构函数定义为私有时，阻止了用户在类域外对析构函数的使用，主要表现为：
+    /*
+    补充：当析构函数定义为私有时，阻止了用户在类域外对析构函数的使用，主要表现为：
     禁止用户对此类型的变量进行定义，即禁止了在栈内存创建此类型的对象，要创建此类型的对象，必须使用new在堆上进行（不加new即在栈中分配）。
     禁止用户在程序中使用delete删除此类型的对象，对象的删除只能在类中实现。可以定义一个公有的destory()函数完成内存的释放。
+    */
     ~StringSingleton(){};
 private:
 	std::string mString;
 };
 
+```
+#####Example 2
+```cpp
+#include <iostream>
+using namespace std;
+//Mutex
+class Mutex
+{
+
+};
+
+class Lock
+{
+public:
+	Lock(Mutex &m):mutex(m){}
+    ~Lock(){};
+private:
+	Mutex & mutex;
+};
+class Singleton
+{
+public:
+	static Singleton * GetInstance();
+    int a;
+    ~Singleton(){cout << "In Destructor" << endl;}
+private:
+	Singleton(int _a):a(_a){cout << "In Constructor" <<endl;}
+    
+    static Mutex mutex;
+    
+    Singleton(const Singleton& );
+    Singleton& operator=(const Singleton& other);
+    
+};
+
+Mutex Singleton::mutex;
+Singleto* Singleton::GetInstance()
+{
+	Lock lock(mutex);
+    cout << "Get Instance"<<endl;
+    
+    static Singleton inst(1);
+    
+    return &inst;
+}
+
+int main()
+{
+	Singleton* Singleton = Singleton::GetInstance();
+    cout << "The value of the singleton:"<<singleton->a <<endl;
+    return 0;
+}
+In the above example, the first call to Singleton::GetInstance will initialize the singleton instance. This example is for illustrative purposes only; for anything but a trivial example program, this code contains errors.
 ```
