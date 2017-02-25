@@ -1,3 +1,6 @@
+[design pattern is awesome]
+
+
 #设计模式
 [TOC]
 
